@@ -1,6 +1,8 @@
 package com.example.elaine.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,18 +36,20 @@ public class Transaction {
     @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "account_id_fk"))
     private Account account;
 
-
+    @NotNull(message = "date must be not null")
     @Column(name = "date", nullable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private LocalDateTime date;
 
-    //todo: password
+    @NotBlank(message = "description must be not empty")
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     //todo: precision = 19, scale = 4
+    @NotNull(message = "amount must be not null")
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
+    @NotNull(message = "transaction type must be not null")
     @Column(name = "type", nullable = false)
     private TransactionType type;
 
