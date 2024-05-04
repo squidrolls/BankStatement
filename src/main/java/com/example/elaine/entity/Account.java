@@ -1,6 +1,9 @@
 package com.example.elaine.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,18 +35,23 @@ public class Account {
     private Long id;
 
     //TODO: now is max 15, add constrain to only 15
-    //todo: orphanRemoval = true
+    @NotBlank(message = "account number must be not empty")
+    @Size(min = 12, max = 12)
     @Column(name = "account_number", nullable = false, length = 12)
     private String accountNumber;
     //todo: write exception if the accountNumber
 
+    @NotBlank(message = "first name must be not empty")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @NotBlank(message = "last name must be not empty")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    //todo: password
     //todo: need to change the balance!!!- service layer
+    @NotNull(message = "balance must be not null")
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
@@ -59,6 +67,7 @@ public class Account {
     )
     private List<Transaction> transactions = new ArrayList<>();
 
+    //todo:set a password for the account
     public Account() {
 
     }
