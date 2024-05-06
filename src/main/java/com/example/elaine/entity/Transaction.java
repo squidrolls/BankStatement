@@ -43,7 +43,7 @@ public class Transaction {
 
 
     @NotNull(message = "amount must be not null")
-    @Column(name = "amount", nullable = false)
+    @Column(name = "amount", nullable = false, precision=19, scale=4)
     private BigDecimal amount;
 
     @NotNull(message = "transaction type must be not null")
