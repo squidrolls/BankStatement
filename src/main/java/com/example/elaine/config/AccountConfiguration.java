@@ -30,31 +30,30 @@ public class AccountConfiguration {
     }
 
     private static void generatedAccountsAndTransactions(AccountRepository accountRepository) {
-        AtomicLong SEQUENCE = new AtomicLong(1000000L); // Start with a long prefix
-        SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyDDD");
-
         Faker faker = new Faker();
-        Date randomDate = faker.date().between(
-                new Date(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 365)), // 1 year ago
-                new Date()
-        );
+        BigDecimal balance = new BigDecimal(faker.number().randomDouble(2, 2000, 5000));
         Account account = new Account(
-                DATE_FORMAT.format(randomDate) + SEQUENCE.getAndIncrement(),
+                "240631000000",
                 faker.name().firstName(),
                 faker.name().lastName(),
-                new BigDecimal(faker.number().randomDouble(2, 100, 5000))
+                balance
         );
 
         //add two transactions
         account.addTransaction(new Transaction(
                 LocalDateTime.now().minusDays(4),
-                "initial deposit",
-                BigDecimal.TEN,
+                "Initial deposit",
+                BigDecimal.valueOf(1000),
                 TransactionType.DEPOSIT));
         account.addTransaction(new Transaction(
                 LocalDateTime.now().minusDays(2),
-                "withdraw",
-                BigDecimal.ONE,
+                "Deposit",
+                balance.subtract(BigDecimal.valueOf(990)),
+                TransactionType.DEPOSIT));
+        account.addTransaction(new Transaction(
+                LocalDateTime.now().minusDays(2),
+                "Withdrawal",
+                BigDecimal.TEN,
                 TransactionType.WITHDRAWAL));
 
         accountRepository.save(account);

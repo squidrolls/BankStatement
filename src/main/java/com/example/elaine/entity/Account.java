@@ -34,12 +34,10 @@ public class Account {
     )
     private Long id;
 
-    //TODO: now is max 15, add constrain to only 15
     @NotBlank(message = "account number must be not empty")
     @Size(min = 12, max = 12)
     @Column(name = "account_number", nullable = false, length = 12)
     private String accountNumber;
-    //todo: write exception if the accountNumber
 
     @NotBlank(message = "first name must be not empty")
     @Column(name = "first_name", nullable = false)
@@ -49,11 +47,14 @@ public class Account {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    //todo: password
-    //todo: need to change the balance!!!- service layer
     @NotNull(message = "balance must be not null")
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
+
+    @NotNull(message = "Status cannot be null")
+    @Enumerated(EnumType.STRING) // This annotation ensures the enum values are stored as string
+    @Column(name = "status", nullable = false)
+    private AccountStatus status;
 
     //bidirectional relationship
     //if a transaction is removed, it will not affect the Account
@@ -67,7 +68,6 @@ public class Account {
     )
     private List<Transaction> transactions = new ArrayList<>();
 
-    //todo:set a password for the account
     public Account() {
 
     }
@@ -77,6 +77,7 @@ public class Account {
         this.firstName = firstName;
         this.lastName = lastName;
         this.balance = balance;
+        this.status = AccountStatus.ACTIVE;
     }
 
     public void addTransaction(Transaction transaction){
@@ -97,6 +98,13 @@ public class Account {
         }
     }
 
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
 
     public Long getId() {
         return id;

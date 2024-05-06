@@ -29,9 +29,6 @@ public class Transaction {
     )
     private Long id;
 
-    //todo: one to many
-    // fetch type
-
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "account_id_fk"))
     private Account account;
@@ -44,12 +41,13 @@ public class Transaction {
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    //todo: precision = 19, scale = 4
+
     @NotNull(message = "amount must be not null")
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
     @NotNull(message = "transaction type must be not null")
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private TransactionType type;
 

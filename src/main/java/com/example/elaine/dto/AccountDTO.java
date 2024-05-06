@@ -1,5 +1,7 @@
 package com.example.elaine.dto;
 
+import com.example.elaine.entity.AccountStatus;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -9,14 +11,17 @@ public class AccountDTO {
     private String firstName;
     private String lastName;
     private BigDecimal balance;
+
+    private AccountStatus status;
     private List<TransactionDTO> transactions;
 
-    public AccountDTO(Long id, String accountNumber, String firstName, String lastName, BigDecimal balance, List<TransactionDTO> transactions) {
+    public AccountDTO(Long id, String accountNumber, String firstName, String lastName, BigDecimal balance, AccountStatus status, List<TransactionDTO> transactions) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.firstName = firstName;
         this.lastName = lastName;
         this.balance = balance;
+        this.status = status;
         this.transactions = transactions;
     }
 
