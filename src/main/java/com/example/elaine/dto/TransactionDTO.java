@@ -1,6 +1,7 @@
 package com.example.elaine.dto;
 
 import com.example.elaine.entity.TransactionType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,6 +12,13 @@ public class TransactionDTO {
     private String description;
     private BigDecimal amount;
     private TransactionType type;
+    private String accountNumber;  // Added to identify the account
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)  // Only include balance if it is not null
+    private BigDecimal balance;
+
+    public TransactionDTO() {
+    }
 
     public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type) {
         this.id = id;
@@ -18,6 +26,25 @@ public class TransactionDTO {
         this.description = description;
         this.amount = amount;
         this.type = type;
+    }
+
+    public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type, String accountNumber) {
+        this(id, date, description, amount, type);
+        this.accountNumber = accountNumber;
+    }
+
+    //for creating a transaction
+    public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type, String accountNumber, BigDecimal balance) {
+        this(id, date, description, amount, type, accountNumber);
+        this.balance = balance;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
     public Long getId() {
@@ -58,5 +85,13 @@ public class TransactionDTO {
 
     public void setType(TransactionType type) {
         this.type = type;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 }

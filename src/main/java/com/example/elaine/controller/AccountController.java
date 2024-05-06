@@ -6,13 +6,13 @@ import com.example.elaine.dto.AccountUpdateDTO;
 import com.example.elaine.dto.CreateAccountDTO;
 import com.example.elaine.entity.Account;
 import com.example.elaine.service.AccountService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequestMapping(path = "/api/v1/accounts")
 @RestController
@@ -43,20 +43,14 @@ public class AccountController {
     @PutMapping("{accountNumber}")
     public ResponseEntity<?> updateAccount(@PathVariable String accountNumber, @RequestBody AccountUpdateDTO accountUpdateDTO){
         AccountDTO updatedAccountDTO = accountService.updateAccount(accountNumber, accountUpdateDTO);
-        if (updatedAccountDTO== null) {
-            return ResponseEntity.ok("No changes were detected for the account.");
-        }
-        return ResponseEntity.ok(updatedAccountDTO);
+        return ResponseEntity.ok(
+                Objects.requireNonNullElse(updatedAccountDTO, "No changes were detected for the account."));
     }
 
     //delete the account
     @PutMapping("/{accountNumber}/status")
     public ResponseEntity<?> updateAccountStatus(@PathVariable String accountNumber, @Valid @RequestBody AccountStatusUpdateDTO statusUpdateDTO) {
-        try {
-            accountService.updateAccountStatus(accountNumber, statusUpdateDTO.getStatus());
-            return ResponseEntity.ok("Account status updated successfully");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        accountService.updateAccountStatus(accountNumber, statusUpdateDTO.getStatus());
+        return ResponseEntity.ok("Account status updated successfully");
     }
 }

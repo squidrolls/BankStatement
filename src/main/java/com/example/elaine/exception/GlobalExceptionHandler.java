@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,6 +61,18 @@ public class GlobalExceptionHandler {
                 errors
         );
         return new ResponseEntity<>(apiExceptionPayload, HttpStatus.NOT_FOUND);
+    }
+
+    //for the status change
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Operation",
+                Collections.singletonMap("error", ex.getMessage())
+        );
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
 }

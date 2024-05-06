@@ -49,7 +49,6 @@ public class AccountService {
             transactionRepository.save(transaction);
         }
 
-
         return account;
     }
 
@@ -71,6 +70,7 @@ public class AccountService {
     }
 
     //4.update the account
+    @Transactional
     public AccountDTO updateAccount(String accountNumber, AccountUpdateDTO accountUpdateDTO){
         Account account = getAccount(accountNumber);
 
@@ -94,7 +94,6 @@ public class AccountService {
     }
 
 
-
     //5.delete the account - soft delete
     public void updateAccountStatus(String accountNumber, AccountStatus newStatus) {
         Account account = getAccount(accountNumber);
@@ -106,14 +105,6 @@ public class AccountService {
         account.setStatus(newStatus);
         accountRepository.save(account);
     }
-
-
-
-    //get all the open accounts
-
-    //add the transaction & update the balance
-    //use the page to see the timestamp
-
 
 
     private Account getAccount(String accountNumber) {
