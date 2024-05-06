@@ -124,7 +124,7 @@ public class AccountService {
     //Mapping entities to DTOs
     public AccountDTO convertToDTO(Account account) {
         List<TransactionDTO> transactionDTOS = account.getTransactions().stream()
-                .map(this::convertToDTO)
+                .map(this::mapTransaction)
                 .collect(Collectors.toList());
 
         return new AccountDTO(
@@ -138,7 +138,7 @@ public class AccountService {
         );
     }
 
-    private TransactionDTO convertToDTO(Transaction transaction) {
+    private TransactionDTO mapTransaction(Transaction transaction) {
         return new TransactionDTO(
                 transaction.getId(),
                 transaction.getDate(),
