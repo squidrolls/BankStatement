@@ -68,6 +68,9 @@ public class Account {
     )
     private List<Transaction> transactions = new ArrayList<>();
 
+//    @Version
+//    private Long version;  // This field is used for optimistic locking
+
     public Account() {
 
     }

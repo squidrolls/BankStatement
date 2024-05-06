@@ -1,8 +1,6 @@
 package com.example.elaine.controller;
 
 import com.example.elaine.dto.AccountDTO;
-import com.example.elaine.dto.AccountStatusUpdateDTO;
-import com.example.elaine.dto.AccountUpdateDTO;
 import com.example.elaine.dto.CreateAccountDTO;
 import com.example.elaine.entity.Account;
 import com.example.elaine.service.AccountService;
@@ -41,16 +39,16 @@ public class AccountController {
     }
 
     @PutMapping("{accountNumber}")
-    public ResponseEntity<?> updateAccount(@PathVariable String accountNumber, @RequestBody AccountUpdateDTO accountUpdateDTO){
-        AccountDTO updatedAccountDTO = accountService.updateAccount(accountNumber, accountUpdateDTO);
+    public ResponseEntity<?> updateAccount(@PathVariable String accountNumber, @RequestBody AccountDTO accountDTO){
+        AccountDTO updatedAccountDTO = accountService.updateAccount(accountNumber, accountDTO);
         return ResponseEntity.ok(
                 Objects.requireNonNullElse(updatedAccountDTO, "No changes were detected for the account."));
     }
 
     //delete the account
     @PutMapping("/{accountNumber}/status")
-    public ResponseEntity<?> updateAccountStatus(@PathVariable String accountNumber, @Valid @RequestBody AccountStatusUpdateDTO statusUpdateDTO) {
-        accountService.updateAccountStatus(accountNumber, statusUpdateDTO.getStatus());
+    public ResponseEntity<?> updateAccountStatus(@PathVariable String accountNumber, @Valid @RequestBody AccountDTO accountDTO) {
+        accountService.updateAccountStatus(accountNumber, accountDTO.getStatus());
         return ResponseEntity.ok("Account status updated successfully");
     }
 }

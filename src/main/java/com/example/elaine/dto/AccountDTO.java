@@ -1,6 +1,7 @@
 package com.example.elaine.dto;
 
 import com.example.elaine.entity.AccountStatus;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,6 +13,7 @@ public class AccountDTO {
     private String lastName;
     private BigDecimal balance;
 
+    @NotNull(message = "Status cannot be null")
     private AccountStatus status;
     private List<TransactionDTO> transactions;
 
@@ -25,6 +27,13 @@ public class AccountDTO {
         this.transactions = transactions;
     }
 
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
     public Long getId() {
         return id;
     }

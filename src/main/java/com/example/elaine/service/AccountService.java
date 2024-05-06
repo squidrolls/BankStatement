@@ -3,7 +3,6 @@ package com.example.elaine.service;
 import com.example.elaine.dao.AccountRepository;
 import com.example.elaine.dao.TransactionRepository;
 import com.example.elaine.dto.AccountDTO;
-import com.example.elaine.dto.AccountUpdateDTO;
 import com.example.elaine.dto.TransactionDTO;
 import com.example.elaine.entity.Account;
 import com.example.elaine.entity.AccountStatus;
@@ -48,7 +47,6 @@ public class AccountService {
             Transaction transaction = new Transaction(account, "Initial deposit", balance, TransactionType.DEPOSIT);
             transactionRepository.save(transaction);
         }
-
         return account;
     }
 
@@ -71,17 +69,17 @@ public class AccountService {
 
     //4.update the account
     @Transactional
-    public AccountDTO updateAccount(String accountNumber, AccountUpdateDTO accountUpdateDTO){
+    public AccountDTO updateAccount(String accountNumber, AccountDTO accountDTO){
         Account account = getAccount(accountNumber);
 
         boolean isUpdated = false;
 
-        if (!Objects.equals(account.getFirstName(), accountUpdateDTO.getFirstName())) {
-            account.setFirstName(accountUpdateDTO.getFirstName());
+        if (!Objects.equals(account.getFirstName(), accountDTO.getFirstName())) {
+            account.setFirstName(accountDTO.getFirstName());
             isUpdated = true;
         }
-        if (!Objects.equals(account.getLastName(), accountUpdateDTO.getLastName())) {
-            account.setLastName(accountUpdateDTO.getLastName());
+        if (!Objects.equals(account.getLastName(), accountDTO.getLastName())) {
+            account.setLastName(accountDTO.getLastName());
             isUpdated = true;
         }
 
