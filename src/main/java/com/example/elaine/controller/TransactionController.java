@@ -43,27 +43,14 @@ public class TransactionController {
         TransactionDTO transaction = transactionService.getTransactionByIdAndAccountNumber(transactionId, accountNumber);
         return ResponseEntity.ok(transaction);
     }
+
     //todo:Security
     //    @PreAuthorize("isAuthenticated() and @securityService.canAccessAccount(principal, #accountNumber)")
     //3. Create a Transaction - change the balance
-
-
     @PostMapping
     public ResponseEntity<TransactionDTO> createTransaction(@PathVariable String accountNumber, @RequestBody TransactionDTO transactionDTO) {
         TransactionDTO createdTransaction = transactionService.createTransaction(accountNumber, transactionDTO);
         return new ResponseEntity<>(createdTransaction, HttpStatus.CREATED);
     }
-
-//    @PostMapping
-//    public ResponseEntity<TransactionDTO> createTransaction(
-//            @PathVariable String accountNumber,
-//            @Valid @RequestBody TransactionDTO transactionDTO
-//    ){
-//        transactionDTO.setAccountNumber(accountNumber); // Ensure the DTO has the correct account number
-//        TransactionDTO createdTransaction = transactionService.createTransaction(transactionDTO);
-//        return new ResponseEntity<>(createdTransaction, HttpStatus.CREATED);
-//    }
-
-
 
 }

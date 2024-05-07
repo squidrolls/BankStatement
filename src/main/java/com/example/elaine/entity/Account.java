@@ -3,7 +3,6 @@ package com.example.elaine.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
         uniqueConstraints = {@UniqueConstraint(name = "account_number_unique", columnNames = "account_number")}
 )
 public class Account {
-//todo : add user entity - password-email @email service check email
+
     @Id
     @SequenceGenerator(
             name = "account_id_sequence",
@@ -35,7 +34,6 @@ public class Account {
     private Long id;
 
     @NotBlank(message = "account number must be not empty")
-//    @Size(min = 12, max = 12)
     @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
