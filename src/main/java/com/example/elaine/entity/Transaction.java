@@ -30,7 +30,7 @@ public class Transaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "account_id_fk"))
+    @JoinColumn(name = "account_number", nullable = false, referencedColumnName = "account_number", foreignKey = @ForeignKey(name = "account_id_fk"))
     private Account account;
 
     @NotNull(message = "date must be not null")
@@ -55,20 +55,12 @@ public class Transaction {
 
     }
 
-    //todo:needs to be changed
-    public Transaction(Account account, String description, BigDecimal amount, TransactionType type) {
-        this.account = account;
-        this.date = LocalDateTime.now();  // Set the current date and time
-        this.description = description;
-        this.amount = amount;
-        this.type = type;
-    }
-
-    public Transaction(LocalDateTime date, String description, BigDecimal amount, TransactionType type) {
+    public Transaction(LocalDateTime date, String description, BigDecimal amount, TransactionType type,Account account) {
         this.date = date;
         this.description = description;
         this.amount = amount;
         this.type = type;
+        this.account = account;
     }
 
     public Long getId() {

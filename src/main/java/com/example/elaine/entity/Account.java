@@ -17,7 +17,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
         uniqueConstraints = {@UniqueConstraint(name = "account_number_unique", columnNames = "account_number")}
 )
 public class Account {
-
+//todo : add user entity - password-email @email service check email
     @Id
     @SequenceGenerator(
             name = "account_id_sequence",
@@ -35,17 +35,9 @@ public class Account {
     private Long id;
 
     @NotBlank(message = "account number must be not empty")
-    @Size(min = 12, max = 12)
-    @Column(name = "account_number", nullable = false, length = 12)
+//    @Size(min = 12, max = 12)
+    @Column(name = "account_number", nullable = false)
     private String accountNumber;
-
-    @NotBlank(message = "first name must be not empty")
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @NotBlank(message = "last name must be not empty")
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
 
     @NotNull(message = "balance must be not null")
     @Column(name = "balance", nullable = false)
@@ -55,6 +47,10 @@ public class Account {
     @Enumerated(EnumType.STRING) // This annotation ensures the enum values are stored as string
     @Column(name = "status", nullable = false)
     private AccountStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true)
+    private BankUser bankUser;
 
     //bidirectional relationship
     //if a transaction is removed, it will not affect the Account
@@ -75,12 +71,19 @@ public class Account {
 
     }
 
-    public Account(String accountNumber, String firstName, String lastName, BigDecimal balance) {
+    public Account(String accountNumber, BigDecimal balance, BankUser bankUser) {
         this.accountNumber = accountNumber;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.balance = balance;
+        this.bankUser = bankUser;
         this.status = AccountStatus.ACTIVE;
+    }
+
+    public BankUser getUser() {
+        return bankUser;
+    }
+
+    public void setUser(BankUser bankUser) {
+        this.bankUser = bankUser;
     }
 
     public void addTransaction(Transaction transaction){
@@ -117,14 +120,6 @@ public class Account {
         return accountNumber;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
     public BigDecimal getBalance() {
         return balance;
     }
@@ -137,14 +132,6 @@ public class Account {
         this.accountNumber = accountNumber;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
@@ -154,10 +141,10 @@ public class Account {
         return "Account{" +
                 "id=" + id +
                 ", accountNumber='" + accountNumber + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
                 ", balance=" + balance +
+                ", status=" + status +
+                ", user=" + bankUser +
+                ", transactions=" + transactions +
                 '}';
     }
-
 }

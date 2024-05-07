@@ -12,7 +12,6 @@ public class TransactionDTO {
     private String description;
     private BigDecimal amount;
     private TransactionType type;
-    private String accountNumber;  // Added to identify the account
 
     @JsonInclude(JsonInclude.Include.NON_NULL)  // Only include balance if it is not null
     private BigDecimal balance;
@@ -28,14 +27,9 @@ public class TransactionDTO {
         this.type = type;
     }
 
-    public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type, String accountNumber) {
-        this(id, date, description, amount, type);
-        this.accountNumber = accountNumber;
-    }
-
     //for creating a transaction
-    public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type, String accountNumber, BigDecimal balance) {
-        this(id, date, description, amount, type, accountNumber);
+    public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type, BigDecimal balance) {
+        this(id, date, description, amount, type);
         this.balance = balance;
     }
 
@@ -87,11 +81,4 @@ public class TransactionDTO {
         this.type = type;
     }
 
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
 }

@@ -10,9 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
-@RequestMapping(path = "/api/v1/accounts")
+@RequestMapping(path = "/api/v1/users/{userId}/accounts")
 @RestController
 public class AccountController {
     private final AccountService accountService;
@@ -21,34 +20,27 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+
+    //1. Get all accounts for a user, not include the transaction
     @GetMapping
-    public List<AccountDTO> getAccounts(){
-        return accountService.getAccounts();
+    public ResponseEntity<List<AccountDTO>> getAllAccountsForUser(@PathVariable Long userId) {
+        List<AccountDTO> accounts = accountService.findAllAccountsForUser(userId);
+        return ResponseEntity.ok(accounts);
     }
 
-    @GetMapping("{accountNumber}")
-    public ResponseEntity<AccountDTO> getAccountByAccountNumber(@PathVariable String accountNumber) {
-        AccountDTO accountDTO = accountService.getAccountByAccountNumber(accountNumber);
-        return ResponseEntity.ok(accountDTO);
-    }
-
+    //create account for user
     @PostMapping
-    public ResponseEntity<Account> createAccount(@Valid @RequestBody CreateAccountDTO request) {
-        Account account = accountService.createAccount(request.getFirstName(), request.getLastName(), request.getBalance());
-        return new ResponseEntity<>(account, HttpStatus.CREATED);
+    public ResponseEntity<AccountDTO> createAccount(@PathVariable Long userId, @RequestBody CreateAccountDTO createAccountDTO) {
+        createAccountDTO.setUserId(userId); // Set the user ID from the path variable
+        AccountDTO accountDTO = accountService.createAccount(createAccountDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountDTO);
     }
 
-    @PutMapping("{accountNumber}")
-    public ResponseEntity<?> updateAccount(@PathVariable String accountNumber, @RequestBody AccountDTO accountDTO){
-        AccountDTO updatedAccountDTO = accountService.updateAccount(accountNumber, accountDTO);
-        return ResponseEntity.ok(
-                Objects.requireNonNullElse(updatedAccountDTO, "No changes were detected for the account."));
-    }
-
-    //delete the account
-    @PutMapping("/{accountNumber}/status")
-    public ResponseEntity<?> updateAccountStatus(@PathVariable String accountNumber, @Valid @RequestBody AccountDTO accountDTO) {
-        accountService.updateAccountStatus(accountNumber, accountDTO.getStatus());
-        return ResponseEntity.ok("Account status updated successfully");
+    //delete the account-soft delete
+    //could not be reopened
+    @DeleteMapping("/{accountNumber}")
+    public ResponseEntity<?> closeAccount(@PathVariable Long userId, @PathVariable String accountNumber) {
+        accountService.closeAccount(accountNumber);
+        return ResponseEntity.ok().body("Account closed successfully.");
     }
 }

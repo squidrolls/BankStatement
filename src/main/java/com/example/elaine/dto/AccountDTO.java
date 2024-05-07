@@ -1,6 +1,7 @@
 package com.example.elaine.dto;
 
 import com.example.elaine.entity.AccountStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -9,22 +10,29 @@ import java.util.List;
 public class AccountDTO {
     private Long id;
     private String accountNumber;
-    private String firstName;
-    private String lastName;
     private BigDecimal balance;
 
     @NotNull(message = "Status cannot be null")
     private AccountStatus status;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)  // Only include balance if it is not null
     private List<TransactionDTO> transactions;
 
-    public AccountDTO(Long id, String accountNumber, String firstName, String lastName, BigDecimal balance, AccountStatus status, List<TransactionDTO> transactions) {
+    public AccountDTO(Long id, String accountNumber, BigDecimal balance, AccountStatus status, List<TransactionDTO> transactions) {
         this.id = id;
         this.accountNumber = accountNumber;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.balance = balance;
         this.status = status;
         this.transactions = transactions;
+    }
+
+    public AccountDTO(Long id, String accountNumber, BigDecimal balance, AccountStatus status) {
+        this.id = id;
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.status = status;
+    }
+
+    public AccountDTO() {
     }
 
     public AccountStatus getStatus() {
@@ -50,22 +58,6 @@ public class AccountDTO {
         this.accountNumber = accountNumber;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public BigDecimal getBalance() {
         return balance;
     }
@@ -74,11 +66,11 @@ public class AccountDTO {
         this.balance = balance;
     }
 
-    public List<TransactionDTO> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(List<TransactionDTO> transactions) {
-        this.transactions = transactions;
-    }
+//    public List<TransactionDTO> getTransactions() {
+//        return transactions;
+//    }
+//
+//    public void setTransactions(List<TransactionDTO> transactions) {
+//        this.transactions = transactions;
+//    }
 }
