@@ -56,6 +56,17 @@ public class BankUser {
     @OneToMany(mappedBy = "bankUser", cascade = {CascadeType.PERSIST}, fetch= FetchType.LAZY)
     private List<Account> accounts = new ArrayList<>();
 
+    public BankUser(String firstName, String lastName, String email, String password, String address) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.address = address;
+    }
+
+    public BankUser() {
+    }
+
     public void addAccounts(Account account){
         if(!accounts.contains(account)){
             accounts.add(account);

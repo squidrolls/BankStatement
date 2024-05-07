@@ -11,6 +11,8 @@ import com.example.elaine.entity.AccountStatus;
 import com.example.elaine.entity.BankUser;
 import com.example.elaine.exception.NotFoundException;
 import jakarta.validation.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
@@ -29,10 +33,11 @@ public class UserService {
 
     //1. get all user
     public List<UserDTO> getAllUsersWithAccounts() {
+        logger.debug("Fetching all users with their accounts");
         List<BankUser> users = userRepository.findAllUsersWithAccounts();
-        return users.stream()
-                .map(this::convertToUserDTO)
-                .collect(Collectors.toList());
+        List<UserDTO> userDTOs = users.stream().map(this::convertToUserDTO).collect(Collectors.toList());
+        logger.info("Fetched {} users", userDTOs.size());
+        return userDTOs;
     }
 
     private UserDTO convertToUserDTO(BankUser user) {
@@ -58,25 +63,24 @@ public class UserService {
 
     //2.create new user
     public UserDTO createUser(CreateUserDTO createUserDTO) {
-        // Check if email is already in use
+        logger.debug("Attempting to create a new user with email: {}", createUserDTO.getEmail());
+        //Check if email is already in use
         userRepository.findByEmail(createUserDTO.getEmail()).ifPresent(existingUser -> {
+            logger.warn("Attempt to create a user with an existing email: {}", createUserDTO.getEmail());
             throw new ValidationException("Email already in use: " + createUserDTO.getEmail());
         });
 
-        BankUser user = new BankUser();
-        user.setFirstName(createUserDTO.getFirstName());
-        user.setLastName(createUserDTO.getLastName());
-        user.setEmail(createUserDTO.getEmail());
-        user.setPassword(createUserDTO.getPassword());
-        user.setAddress(createUserDTO.getAddress());
-
+        BankUser user = new BankUser(createUserDTO.getFirstName(), createUserDTO.getLastName(), createUserDTO.getEmail(), createUserDTO.getPassword(), createUserDTO.getAddress());
         user = userRepository.save(user);
+        logger.info("Created new user with ID: {}", user.getId());
         return convertToUserDTO(user);
     }
+
 
     //3. update a user
     @Transactional
     public UserDTO updateUser(Long userId, UpdateUserDTO updateUserDTO) {
+        logger.debug("Updating user with ID: {}", userId);
         BankUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Account Number " + userId + " not found"));
 
@@ -84,6 +88,7 @@ public class UserService {
 
         if (updateUserDTO.getEmail() != null && !updateUserDTO.getEmail().equals(user.getEmail())) {
             userRepository.findByEmail(updateUserDTO.getEmail()).ifPresent(existingUser -> {
+                logger.warn("Attempt to update user ID: {} with an existing email: {}", userId, updateUserDTO.getEmail());
                 throw new ValidationException("Email already in use");
             });
             user.setEmail(updateUserDTO.getEmail());
@@ -113,8 +118,10 @@ public class UserService {
 
         if (isUpdated) {
             userRepository.save(user);
+            logger.info("Updated user with ID: {}", userId);
             return convertToUserDTO(user);
         } else {
+            logger.info("No changes detected for user with ID: {}", userId);
             throw new IllegalStateException("No changes were detected for the account.");
         }
     }
@@ -123,6 +130,7 @@ public class UserService {
     //todo: handle security and authorization
     @Transactional
     public void deleteUser(Long userId) {
+        logger.debug("Deleting user with ID: {}", userId);
         BankUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
@@ -133,7 +141,7 @@ public class UserService {
             accountRepository.save(account);
         }
         userRepository.delete(user);
+        logger.info("Deleted user with ID: {} and closed all associated accounts", userId);
     }
-
 
 }
