@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -81,12 +80,13 @@ public class TransactionService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        Transaction transaction = new Transaction();
-        transaction.setAccount(account);
-        transaction.setDescription(transactionDTO.getDescription());
-        transaction.setAmount(transactionDTO.getAmount());
-        transaction.setDate(LocalDateTime.now());
-        transaction.setType(transactionDTO.getType());
+        Transaction transaction = new Transaction(
+                LocalDateTime.now(),
+                transactionDTO.getDescription(),
+                transactionDTO.getAmount(),
+                transactionDTO.getType(),
+                account
+        );
 
         updateAccountBalance(account, transaction);
 

@@ -12,11 +12,10 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Configuration
-public class AccountConfiguration {
+public class FakeDataConfiguration {
     @Bean
     CommandLineRunner commandLineRunner(AccountRepository accountRepository, UserRepository userRepository) {
         return args -> {
@@ -32,21 +31,18 @@ public class AccountConfiguration {
             String accountNumber = generateAccountNumber(DATE_FORMAT, SEQUENCE);
 
             // Create a User
-            BankUser bankUser = new BankUser();
-            bankUser.setFirstName(faker.name().firstName());
-            bankUser.setLastName(faker.name().lastName());
-            bankUser.setEmail(faker.internet().emailAddress());
-            bankUser.setPassword(faker.internet().password());  // todo: Remember to hash this in production!
-            bankUser.setAddress(faker.address().fullAddress());
+            BankUser bankUser = new BankUser(
+                    faker.name().firstName(),
+                    faker.name().lastName(),
+                    faker.internet().emailAddress(),
+                    faker.internet().password(),// todo: Remember to hash this in production!
+                    faker.address().fullAddress()
+            );
 
             userRepository.save(bankUser);
 
-            // Create an Account associated with the User
-            Account account = new Account();
-            account.setAccountNumber(accountNumber);
-            account.setBalance(BigDecimal.ZERO);  // Start with a zero balance
-            account.setStatus(AccountStatus.ACTIVE);
-            account.setUser(bankUser);  // Link account to user
+            // Create an Account
+            Account account = new Account(accountNumber, BigDecimal.ZERO,bankUser);
 
             // Transactions with varying amounts and purposes
             LocalDateTime now = LocalDateTime.now();
@@ -75,24 +71,17 @@ public class AccountConfiguration {
                 }
             }
 
-            // Update and save the account balance
             account.setBalance(balance);
             accountRepository.save(account);
         }
     }
 
     private void addTransaction(Account account, LocalDateTime dateTime, String description, BigDecimal amount, TransactionType type) {
-        Transaction transaction = new Transaction();
-        transaction.setDate(dateTime);
-        transaction.setDescription(description);
-        transaction.setAmount(amount);
-        transaction.setType(type);
-        transaction.setAccount(account);
+        Transaction transaction = new Transaction(dateTime, description, amount, type,account);
         account.getTransactions().add(transaction);
     }
 
     private static String generateAccountNumber(SimpleDateFormat DATE_FORMAT, AtomicLong SEQUENCE) {
-        // Get the current year and month
         String datePart = DATE_FORMAT.format(new Date());
         long sequence = SEQUENCE.getAndIncrement();
         return String.format("%s-%04d-%04d", datePart, sequence / 10000, sequence % 10000);

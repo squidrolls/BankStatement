@@ -65,15 +65,15 @@ public class Account {
 //    @Version
 //    private Long version;  // This field is used for optimistic locking
 
-    public Account() {
-
-    }
-
     public Account(String accountNumber, BigDecimal balance, BankUser bankUser) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.bankUser = bankUser;
         this.status = AccountStatus.ACTIVE;
+    }
+
+    public Account() {
+
     }
 
     public BankUser getUser() {
