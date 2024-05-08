@@ -1,6 +1,5 @@
 package com.example.elaine.service;
 
-
 import com.example.elaine.dao.AccountRepository;
 import com.example.elaine.dao.TransactionRepository;
 import com.example.elaine.dto.TransactionDTO;
@@ -9,6 +8,7 @@ import com.example.elaine.entity.Transaction;
 import com.example.elaine.entity.TransactionType;
 import com.example.elaine.exception.NotFoundException;
 import jakarta.persistence.criteria.Predicate;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,19 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TransactionService {
+
     private final TransactionRepository transactionRepository;
-
     private final AccountRepository accountRepository;
-
-    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository) {
-        this.transactionRepository = transactionRepository;
-        this.accountRepository = accountRepository;
-    }
 
     @Transactional
     public TransactionDTO getTransactionByIdAndAccountNumber(Long transactionId, String accountNumber) {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
+        accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException("Account not found with account number: " + accountNumber));
 
         Transaction transaction = transactionRepository.findByIdAndAccount_AccountNumber(transactionId, accountNumber)
@@ -56,51 +52,30 @@ public class TransactionService {
             }
 
             // Transaction type filter
-            if (type != null) {
-                predicates.add(criteriaBuilder.equal(root.get("type"), type));
-            }
+            if (type != null) predicates.add(criteriaBuilder.equal(root.get("type"), type));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }, pageable).map(this::convertToTransactionDTO);
     }
 
     private TransactionDTO convertToTransactionDTO(Transaction transaction) {
-        return new TransactionDTO(
-                transaction.getId(),
-                transaction.getDate(),
-                transaction.getDescription(),
-                transaction.getAmount(),
-                transaction.getType()
+        return new TransactionDTO(transaction.getId(), transaction.getDate(), transaction.getDescription(), transaction.getAmount(), transaction.getType()
         );
     }
-
 
     @Transactional
     public TransactionDTO createTransaction(String accountNumber, TransactionDTO transactionDTO) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        Transaction transaction = new Transaction(
-                LocalDateTime.now(),
-                transactionDTO.getDescription(),
-                transactionDTO.getAmount(),
-                transactionDTO.getType(),
-                account
-        );
+        Transaction transaction = new Transaction(LocalDateTime.now(), transactionDTO.getDescription(), transactionDTO.getAmount(), transactionDTO.getType(), account);
 
         updateAccountBalance(account, transaction);
 
         transaction = transactionRepository.save(transaction);
         accountRepository.save(account);
 
-        return new TransactionDTO(
-                transaction.getId(),
-                transaction.getDate(),
-                transaction.getDescription(),
-                transaction.getAmount(),
-                transaction.getType(),
-                account.getBalance()
-        );
+        return new TransactionDTO(transaction.getId(), transaction.getDate(), transaction.getDescription(), transaction.getAmount(), transaction.getType(), account.getBalance());
     }
 
     private void updateAccountBalance(Account account, Transaction transaction) {
@@ -114,5 +89,4 @@ public class TransactionService {
             }
         }
     }
-
 }

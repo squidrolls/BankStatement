@@ -3,6 +3,10 @@ package com.example.elaine.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,22 +15,15 @@ import static jakarta.persistence.GenerationType.*;
 
 @Entity(name = "Transaction")
 @Table(name = "transaction")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Transaction {
 
     @Id
-    @SequenceGenerator(
-            name = "transaction_id_sequence",
-            sequenceName = "transaction_id_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = SEQUENCE,
-            generator = "transaction_id_sequence"
-    )
-    @Column(
-            name = "id",
-            updatable = false //could not be updated
-    )
+    @SequenceGenerator(name = "transaction_id_sequence", sequenceName = "transaction_id_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = SEQUENCE, generator = "transaction_id_sequence")
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @ManyToOne
@@ -51,64 +48,13 @@ public class Transaction {
     @Column(name = "type", nullable = false)
     private TransactionType type;
 
-    public Transaction() {
 
-    }
-
-    public Transaction(LocalDateTime date, String description, BigDecimal amount, TransactionType type,Account account) {
+    public Transaction(LocalDateTime date, String description, BigDecimal amount, TransactionType type, Account account) {
         this.date = date;
         this.description = description;
         this.amount = amount;
         this.type = type;
         this.account = account;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public TransactionType getType() {
-        return type;
-    }
-
-    public void setType(TransactionType type) {
-        this.type = type;
     }
 
     @Override

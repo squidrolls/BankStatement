@@ -5,6 +5,7 @@ import com.example.elaine.dto.UpdateUserDTO;
 import com.example.elaine.dto.UserDTO;
 import com.example.elaine.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,10 @@ import java.util.List;
 
 @RequestMapping(path = "/api/v1/users")
 @RestController
+@AllArgsConstructor
 public class UserController {
-    private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsersWithAccounts() {
@@ -31,6 +30,7 @@ public class UserController {
         UserDTO userDTO = userService.createUser(createUserDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
     }
+
     @PutMapping("/{userId}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         UserDTO updatedUser = userService.updateUser(userId, updateUserDTO);
@@ -42,6 +42,4 @@ public class UserController {
         userService.deleteUser(userId);
         return ResponseEntity.ok("User has been deleted; associated accounts have been closed.");
     }
-
-
 }

@@ -11,8 +11,8 @@ import com.example.elaine.entity.AccountStatus;
 import com.example.elaine.entity.BankUser;
 import com.example.elaine.exception.NotFoundException;
 import jakarta.validation.ValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,23 +20,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@AllArgsConstructor
 public class UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
-    public UserService(UserRepository userRepository, AccountRepository accountRepository) {
-        this.userRepository = userRepository;
-        this.accountRepository = accountRepository;
-    }
-
     //1. get all user
     public List<UserDTO> getAllUsersWithAccounts() {
-        logger.debug("Fetching all users with their accounts");
         List<BankUser> users = userRepository.findAllUsersWithAccounts();
         List<UserDTO> userDTOs = users.stream().map(this::convertToUserDTO).collect(Collectors.toList());
-        logger.info("Fetched {} users", userDTOs.size());
+
+        log.info("Fetched {} users", userDTOs.size());
+
         return userDTOs;
     }
 
@@ -44,43 +41,34 @@ public class UserService {
         List<AccountDTO> accountDTOs = user.getAccounts().stream()
                 .map(this::convertToAccountDTO)
                 .collect(Collectors.toList());
-        return new UserDTO(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getAddress(),
-                accountDTOs);
+        return new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getAddress(), accountDTOs);
     }
 
     private AccountDTO convertToAccountDTO(Account account) {
-        return new AccountDTO(
-                account.getId(),
-                account.getAccountNumber(),
-                account.getBalance(),
-                account.getStatus());
+        return new AccountDTO(account.getId(), account.getAccountNumber(), account.getBalance(), account.getStatus());
     }
 
     //2.create new user
     public UserDTO createUser(CreateUserDTO createUserDTO) {
-        logger.debug("Attempting to create a new user with email: {}", createUserDTO.getEmail());
+        log.debug("Attempting to create a new user with email: {}", createUserDTO.getEmail());
+
         //Check if email is already in use
         userRepository.findByEmail(createUserDTO.getEmail()).ifPresent(existingUser -> {
-            logger.warn("Attempt to create a user with an existing email: {}", createUserDTO.getEmail());
+            log.warn("Attempt to create a user with an existing email: {}", createUserDTO.getEmail());
             throw new ValidationException("Email already in use: " + createUserDTO.getEmail());
         });
 
         BankUser user = new BankUser(createUserDTO.getFirstName(), createUserDTO.getLastName(), createUserDTO.getEmail(), createUserDTO.getPassword(), createUserDTO.getAddress());
         user = userRepository.save(user);
-        logger.info("Created new user with ID: {}", user.getId());
+        log.info("Created new user with ID: {}", user.getId());
+
         return convertToUserDTO(user);
     }
-
 
     //3. update a user
     @Transactional
     public UserDTO updateUser(Long userId, UpdateUserDTO updateUserDTO) {
-        logger.debug("Updating user with ID: {}", userId);
+        log.debug("Updating user with ID: {}", userId);
         BankUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Account Number " + userId + " not found"));
 
@@ -88,7 +76,7 @@ public class UserService {
 
         if (updateUserDTO.getEmail() != null && !updateUserDTO.getEmail().equals(user.getEmail())) {
             userRepository.findByEmail(updateUserDTO.getEmail()).ifPresent(existingUser -> {
-                logger.warn("Attempt to update user ID: {} with an existing email: {}", userId, updateUserDTO.getEmail());
+                log.warn("Attempt to update user ID: {} with an existing email: {}", userId, updateUserDTO.getEmail());
                 throw new ValidationException("Email already in use");
             });
             user.setEmail(updateUserDTO.getEmail());
@@ -118,10 +106,12 @@ public class UserService {
 
         if (isUpdated) {
             userRepository.save(user);
-            logger.info("Updated user with ID: {}", userId);
+            log.info("Updated user with ID: {}", userId);
+
             return convertToUserDTO(user);
         } else {
-            logger.info("No changes detected for user with ID: {}", userId);
+            log.info("No changes detected for user with ID: {}", userId);
+
             throw new IllegalStateException("No changes were detected for the account.");
         }
     }
@@ -130,18 +120,18 @@ public class UserService {
     //todo: handle security and authorization
     @Transactional
     public void deleteUser(Long userId) {
-        logger.debug("Deleting user with ID: {}", userId);
+        log.debug("Deleting user with ID: {}", userId);
         BankUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
         // Set the user reference in each account to null and close the accounts
         for (Account account : user.getAccounts()) {
-            account.setUser(null); // Disassociate the account from the user
-            account.setStatus(AccountStatus.CLOSED); // Optionally close the account
+            account.setBankUser(null);// Disassociate the account from the user
+            account.setStatus(AccountStatus.CLOSED);
             accountRepository.save(account);
         }
         userRepository.delete(user);
-        logger.info("Deleted user with ID: {} and closed all associated accounts", userId);
-    }
 
+        log.info("Deleted user with ID: {} and closed all associated accounts", userId);
+    }
 }

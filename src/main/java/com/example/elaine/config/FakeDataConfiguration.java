@@ -86,5 +86,4 @@ public class FakeDataConfiguration {
         long sequence = SEQUENCE.getAndIncrement();
         return String.format("%s-%04d-%04d", datePart, sequence / 10000, sequence % 10000);
     }
-
 }

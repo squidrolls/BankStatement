@@ -3,6 +3,9 @@ package com.example.elaine.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,26 +14,16 @@ import java.util.List;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "Account")
-@Table(
-        name = "account",
-        uniqueConstraints = {@UniqueConstraint(name = "account_number_unique", columnNames = "account_number")}
-)
+@Table(name = "account", uniqueConstraints = {@UniqueConstraint(name = "account_number_unique", columnNames = "account_number")})
+@Getter
+@Setter
+@NoArgsConstructor
 public class Account {
 
     @Id
-    @SequenceGenerator(
-            name = "account_id_sequence",
-            sequenceName = "account_id_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = SEQUENCE,
-            generator = "account_id_sequence"
-    )
-    @Column(
-            name = "id",
-            updatable = false
-    )
+    @SequenceGenerator(name = "account_id_sequence", sequenceName = "account_id_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = SEQUENCE, generator = "account_id_sequence")
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @NotBlank(message = "account number must be not empty")
@@ -72,18 +65,6 @@ public class Account {
         this.status = AccountStatus.ACTIVE;
     }
 
-    public Account() {
-
-    }
-
-    public BankUser getUser() {
-        return bankUser;
-    }
-
-    public void setUser(BankUser bankUser) {
-        this.bankUser = bankUser;
-    }
-
     public void addTransaction(Transaction transaction){
         if(!transactions.contains(transaction)){
             transactions.add(transaction);
@@ -91,47 +72,11 @@ public class Account {
         }
     }
 
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
-
     public void removeTransaction(Transaction transaction){
         if(transactions.contains(transaction)){
             transactions.remove(transaction);
             transaction.setAccount(null);
         }
-    }
-
-    public AccountStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AccountStatus status) {
-        this.status = status;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
     }
 
     @Override

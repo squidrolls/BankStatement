@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         Map<String, String> errors = ex.getConstraintViolations().stream()
@@ -73,5 +72,4 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
-
 }
