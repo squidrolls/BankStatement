@@ -1,5 +1,6 @@
 package com.example.elaine.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -44,6 +45,8 @@ public class BankUser {
     @Column(name = "email", nullable = false)
     private String email;
 
+    //could access the password but could not read the password
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(message = "password must be not empty")
     @Column(name = "password", nullable = false)
     private String password;  // Consider hashing this
