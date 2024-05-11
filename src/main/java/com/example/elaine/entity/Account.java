@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @Table(name = "account", uniqueConstraints = {@UniqueConstraint(name = "account_number_unique", columnNames = "account_number")})
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class Account {
 
@@ -77,17 +79,5 @@ public class Account {
             transactions.remove(transaction);
             transaction.setAccount(null);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", accountNumber='" + accountNumber + '\'' +
-                ", balance=" + balance +
-                ", status=" + status +
-                ", user=" + bankUser +
-                ", transactions=" + transactions +
-                '}';
     }
 }
