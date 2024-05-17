@@ -3,21 +3,18 @@ package com.example.elaine.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.*;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "Transaction")
 @Table(name = "transaction")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Transaction {
 
     @Id
@@ -38,7 +35,6 @@ public class Transaction {
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-
     @NotNull(message = "amount must be not null")
     @Column(name = "amount", nullable = false, precision=19, scale=4)
     private BigDecimal amount;
@@ -55,17 +51,5 @@ public class Transaction {
         this.amount = amount;
         this.type = type;
         this.account = account;
-    }
-
-    @Override
-    public String toString() {
-        return "Transaction{" +
-                "id=" + id +
-                ", account=" + account +
-                ", date=" + date +
-                ", description='" + description + '\'' +
-                ", amount=" + amount +
-                ", type=" + type +
-                '}';
     }
 }

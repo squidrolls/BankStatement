@@ -1,4 +1,4 @@
-package com.example.elaine.dto;
+package com.example.elaine.payload;
 
 import com.example.elaine.entity.AccountStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,9 +16,7 @@ import java.util.List;
 public class AccountDTO {
 
     private Long id;
-
     private String accountNumber;
-
     private BigDecimal balance;
 
     @NotNull(message = "Status cannot be null")

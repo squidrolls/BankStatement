@@ -1,4 +1,4 @@
-package com.example.elaine.dto;
+package com.example.elaine.payload;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -8,8 +8,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class CreateAccountDTO {
-
+public class AccountRegistrationRequest {
     private Long userId;
 
     @NotNull(message = "Balance must not be null")

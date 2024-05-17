@@ -2,13 +2,13 @@ package com.example.elaine.service;
 
 import com.example.elaine.dao.AccountRepository;
 import com.example.elaine.dao.TransactionRepository;
-import com.example.elaine.dto.TransactionDTO;
+import com.example.elaine.payload.TransactionDTO;
 import com.example.elaine.entity.Account;
 import com.example.elaine.entity.Transaction;
 import com.example.elaine.entity.TransactionType;
 import com.example.elaine.exception.NotFoundException;
 import jakarta.persistence.criteria.Predicate;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;

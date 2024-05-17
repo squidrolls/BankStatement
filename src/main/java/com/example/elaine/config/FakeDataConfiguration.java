@@ -4,6 +4,7 @@ import com.example.elaine.dao.AccountRepository;
 import com.example.elaine.dao.UserRepository;
 import com.example.elaine.entity.*;
 import com.github.javafaker.Faker;
+import com.github.javafaker.Name;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,19 +31,22 @@ public class FakeDataConfiguration {
         for (int i = 0; i < 10; i++) {
             String accountNumber = generateAccountNumber(DATE_FORMAT, SEQUENCE);
 
-            // Create a User
-            BankUser bankUser = new BankUser(
-                    faker.name().firstName(),
-                    faker.name().lastName(),
-                    faker.internet().emailAddress(),
+            Name name = faker.name();
+            String firstName = name.firstName();
+            String lastName = name.lastName();
+            String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+
+            User user = new User(
+                    firstName,
+                    lastName,
+                    email,
                     faker.internet().password(),// todo: Remember to hash this in production!
                     faker.address().fullAddress()
             );
 
-            userRepository.save(bankUser);
+            userRepository.save(user);
 
-            // Create an Account
-            Account account = new Account(accountNumber, BigDecimal.ZERO,bankUser);
+            Account account = new Account(accountNumber, BigDecimal.ZERO, user);
 
             // Transactions with varying amounts and purposes
             LocalDateTime now = LocalDateTime.now();

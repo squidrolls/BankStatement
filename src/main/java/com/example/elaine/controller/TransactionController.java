@@ -1,10 +1,11 @@
 package com.example.elaine.controller;
 
-import com.example.elaine.dto.TransactionDTO;
+import com.example.elaine.payload.TransactionDTO;
 import com.example.elaine.entity.TransactionType;
 import com.example.elaine.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 @RequestMapping(path = "/api/v1/users/{userId}/accounts/{accountNumber}/transactions")
 @RestController
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -44,10 +45,6 @@ public class TransactionController {
     @GetMapping("/{transactionId}")
     public ResponseEntity<TransactionDTO> getTransaction(@PathVariable String accountNumber, @PathVariable Long transactionId) {
         TransactionDTO transaction = transactionService.getTransactionByIdAndAccountNumber(transactionId, accountNumber);
-        if (transaction == null) {
-            log.warn("Transaction with ID: {} not found for accountNumber: {}", transactionId, accountNumber);
-            return ResponseEntity.notFound().build();
-        }
         log.info("Transaction with ID: {} retrieved successfully for accountNumber: {}", transactionId, accountNumber);
         return ResponseEntity.ok(transaction);
     }

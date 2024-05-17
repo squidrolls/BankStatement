@@ -1,25 +1,22 @@
 package com.example.elaine.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-@Entity(name = "BankUser")
-@Table(name = "bank_user", uniqueConstraints = {@UniqueConstraint(name = "email_unique", columnNames = "email")})
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-public class BankUser {
+@AllArgsConstructor
+@Entity(name = "User")
+@Table(name = "_user", uniqueConstraints = {@UniqueConstraint(name = "email_unique", columnNames = "email")})
+public class User {
     @Id
     @SequenceGenerator(name = "user_id_sequence", sequenceName = "user_id_sequence", allocationSize = 1)
     @GeneratedValue(strategy = SEQUENCE, generator = "user_id_sequence")
@@ -50,10 +47,10 @@ public class BankUser {
     private String address;
 
     //when remove the user, keep its accounts
-    @OneToMany(mappedBy = "bankUser", cascade = {CascadeType.PERSIST}, fetch= FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST}, fetch= FetchType.LAZY)
     private List<Account> accounts = new ArrayList<>();
 
-    public BankUser(String firstName, String lastName, String email, String password, String address) {
+    public User(String firstName, String lastName, String email, String password, String address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -64,14 +61,14 @@ public class BankUser {
     public void addAccounts(Account account){
         if(!accounts.contains(account)){
             accounts.add(account);
-            account.setBankUser(this);
+            account.setUser(this);
         }
     }
 
     public void removeAccounts(Account account){
         if(accounts.contains(account)){
             accounts.remove(account);
-            account.setBankUser(null);
+            account.setUser(null);
         }
     }
 }

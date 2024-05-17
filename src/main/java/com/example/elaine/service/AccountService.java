@@ -3,14 +3,14 @@ package com.example.elaine.service;
 import com.example.elaine.dao.AccountRepository;
 import com.example.elaine.dao.TransactionRepository;
 import com.example.elaine.dao.UserRepository;
-import com.example.elaine.dto.AccountDTO;
-import com.example.elaine.dto.CreateAccountDTO;
-import com.example.elaine.dto.TransactionDTO;
+import com.example.elaine.payload.AccountDTO;
+import com.example.elaine.payload.AccountRegistrationRequest;
+import com.example.elaine.payload.TransactionDTO;
 import com.example.elaine.entity.*;
 import com.example.elaine.exception.NotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
@@ -34,11 +34,11 @@ public class AccountService {
 
     //1.create Account - generate random account number
     @Transactional
-    public AccountDTO createAccount(CreateAccountDTO createAccountDTO) {
-        BankUser bankUser = userRepository.findById(createAccountDTO.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found with id: " + createAccountDTO.getUserId()));
+    public AccountDTO createAccount(AccountRegistrationRequest accountRegistrationRequest) {
+        User user = userRepository.findById(accountRegistrationRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + accountRegistrationRequest.getUserId()));
 
-        if (createAccountDTO.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+        if (accountRegistrationRequest.getBalance().compareTo(BigDecimal.ZERO) < 0) {
             throw new ValidationException("Initial balance must be non-negative.");
         }
 
@@ -50,7 +50,7 @@ public class AccountService {
         while (!isAccountCreated && attempt < maxAttempts) {
             try {
                 String accountNumber = generateAccountNumber();
-                account = new Account(accountNumber, createAccountDTO.getBalance(), bankUser);
+                account = new Account(accountNumber, accountRegistrationRequest.getBalance(), user);
                 accountRepository.save(account);
                 isAccountCreated = true;
             } catch (ConstraintViolationException e) {
@@ -63,8 +63,8 @@ public class AccountService {
             throw new IllegalStateException("Failed to generate a unique account number after " + maxAttempts + " attempts.");
         }
 
-        if (createAccountDTO.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-            Transaction transaction = new Transaction(LocalDateTime.now(), "Initial deposit", createAccountDTO.getBalance(), TransactionType.DEPOSIT, account);
+        if (accountRegistrationRequest.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+            Transaction transaction = new Transaction(LocalDateTime.now(), "Initial deposit", accountRegistrationRequest.getBalance(), TransactionType.DEPOSIT, account);
             transactionRepository.save(transaction);
         }
         return convertToDTO(account);
@@ -85,7 +85,7 @@ public class AccountService {
 
     //2. get all accounts
     public List<AccountDTO> findAllAccountsForUser(Long userId) {
-        List<Account> accounts = accountRepository.findByBankUserId(userId);
+        List<Account> accounts = accountRepository.findByUserId(userId);
         return accounts.stream()
                 .map(account -> new AccountDTO(account.getId(), account.getAccountNumber(), account.getBalance(), account.getStatus()))
                 .collect(Collectors.toList());

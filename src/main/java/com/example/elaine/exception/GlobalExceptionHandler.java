@@ -4,12 +4,10 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,17 +46,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = NotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleApiRequestException(NotFoundException e){
         Map<String, String> errors = new HashMap<>();
         errors.put("error", e.getMessage());
-        ApiErrorResponse apiExceptionPayload = new ApiErrorResponse(
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
                 "Not Found",
                 errors
         );
-        return new ResponseEntity<>(apiExceptionPayload, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
     }
 
     //for the status change
@@ -71,5 +69,16 @@ public class GlobalExceptionHandler {
                 Collections.singletonMap("error", ex.getMessage())
         );
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Object> handleDuplicateRescourceException(DuplicateResourceException ex) {
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict Error",
+                Collections.singletonMap("error", ex.getMessage())
+        );
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.CONFLICT);
     }
 }

@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: postgres-bank
+    image: postgres
+    environment:
+      POSTGRES_USER: elaine
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - db-bank:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - db-bank-network
+    restart: unless-stopped
+
+networks:
+  db-bank-network:
+    driver: bridge
+
+volumes:
+  db-bank:

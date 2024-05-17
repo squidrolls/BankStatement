@@ -2,16 +2,16 @@ package com.example.elaine.service;
 
 import com.example.elaine.dao.AccountRepository;
 import com.example.elaine.dao.UserRepository;
-import com.example.elaine.dto.AccountDTO;
-import com.example.elaine.dto.CreateUserDTO;
-import com.example.elaine.dto.UpdateUserDTO;
-import com.example.elaine.dto.UserDTO;
+import com.example.elaine.exception.DuplicateResourceException;
+import com.example.elaine.payload.AccountDTO;
+import com.example.elaine.payload.UserRegistrationRequest;
+import com.example.elaine.payload.UserUpdateRequest;
+import com.example.elaine.payload.UserDTO;
 import com.example.elaine.entity.Account;
 import com.example.elaine.entity.AccountStatus;
-import com.example.elaine.entity.BankUser;
+import com.example.elaine.entity.User;
 import com.example.elaine.exception.NotFoundException;
-import jakarta.validation.ValidationException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -29,7 +29,7 @@ public class UserService {
 
     //1. get all user
     public List<UserDTO> getAllUsersWithAccounts() {
-        List<BankUser> users = userRepository.findAllUsersWithAccounts();
+        List<User> users = userRepository.findAllUsersWithAccounts();
         List<UserDTO> userDTOs = users.stream().map(this::convertToUserDTO).collect(Collectors.toList());
 
         log.info("Fetched {} users", userDTOs.size());
@@ -37,7 +37,7 @@ public class UserService {
         return userDTOs;
     }
 
-    private UserDTO convertToUserDTO(BankUser user) {
+    private UserDTO convertToUserDTO(User user) {
         List<AccountDTO> accountDTOs = user.getAccounts().stream()
                 .map(this::convertToAccountDTO)
                 .collect(Collectors.toList());
@@ -49,16 +49,16 @@ public class UserService {
     }
 
     //2.create new user
-    public UserDTO createUser(CreateUserDTO createUserDTO) {
-        log.debug("Attempting to create a new user with email: {}", createUserDTO.getEmail());
+    public UserDTO createUser(UserRegistrationRequest request) {
+        log.debug("Attempting to create a new user with email: {}", request.email());
 
         //Check if email is already in use
-        userRepository.findByEmail(createUserDTO.getEmail()).ifPresent(existingUser -> {
-            log.warn("Attempt to create a user with an existing email: {}", createUserDTO.getEmail());
-            throw new ValidationException("Email already in use: " + createUserDTO.getEmail());
+        userRepository.findByEmail(request.email()).ifPresent(existingUser -> {
+            log.warn("Attempt to create a user with an existing email: {}", request.email());
+            throw new DuplicateResourceException("Email already in use: " + request.email());
         });
 
-        BankUser user = new BankUser(createUserDTO.getFirstName(), createUserDTO.getLastName(), createUserDTO.getEmail(), createUserDTO.getPassword(), createUserDTO.getAddress());
+        User user = new User(request.firstName(), request.lastName(), request.email(), request.password(), request.address());
         user = userRepository.save(user);
         log.info("Created new user with ID: {}", user.getId());
 
@@ -67,51 +67,48 @@ public class UserService {
 
     //3. update a user
     @Transactional
-    public UserDTO updateUser(Long userId, UpdateUserDTO updateUserDTO) {
+    public void updateUser(Long userId, UserUpdateRequest userUpdateRequest) {
         log.debug("Updating user with ID: {}", userId);
-        BankUser user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Account Number " + userId + " not found"));
 
         boolean isUpdated = false;
 
-        if (updateUserDTO.getEmail() != null && !updateUserDTO.getEmail().equals(user.getEmail())) {
-            userRepository.findByEmail(updateUserDTO.getEmail()).ifPresent(existingUser -> {
-                log.warn("Attempt to update user ID: {} with an existing email: {}", userId, updateUserDTO.getEmail());
-                throw new ValidationException("Email already in use");
+        if (userUpdateRequest.email() != null && !userUpdateRequest.email().equals(user.getEmail())) {
+            userRepository.findByEmail(userUpdateRequest.email()).ifPresent(existingUser -> {
+                log.warn("Attempt to update user ID: {} with an existing email: {}", userId, userUpdateRequest.email());
+                throw new DuplicateResourceException("Email already in use");
             });
-            user.setEmail(updateUserDTO.getEmail());
+            user.setEmail(userUpdateRequest.email());
             isUpdated = true;
         }
 
-        if (updateUserDTO.getFirstName() != null && !updateUserDTO.getFirstName().equals(user.getFirstName())) {
-            user.setFirstName(updateUserDTO.getFirstName());
+        if (userUpdateRequest.firstName() != null && !userUpdateRequest.firstName().equals(user.getFirstName())) {
+            user.setFirstName(userUpdateRequest.firstName());
             isUpdated = true;
         }
 
-        if (updateUserDTO.getLastName() != null && !updateUserDTO.getLastName().equals(user.getLastName())) {
-            user.setLastName(updateUserDTO.getLastName());
+        if (userUpdateRequest.lastName() != null && !userUpdateRequest.lastName().equals(user.getLastName())) {
+            user.setLastName(userUpdateRequest.lastName());
             isUpdated = true;
         }
 
-        if (updateUserDTO.getAddress() != null && !updateUserDTO.getAddress().equals(user.getAddress())) {
-            user.setAddress(updateUserDTO.getAddress());
+        if (userUpdateRequest.address() != null && !userUpdateRequest.address().equals(user.getAddress())) {
+            user.setAddress(userUpdateRequest.address());
             isUpdated = true;
         }
 
         // Check for password changes (ensure to encode the new password before comparison if encoded)
-        if (updateUserDTO.getPassword() != null) { // todo :Add actual password comparison logic here if needed
-            user.setPassword(updateUserDTO.getPassword()); //TODO: Add password encoder
+        if (userUpdateRequest.password() != null && !userUpdateRequest.password().equals(user.getPassword())) { // todo :Add actual password comparison logic here if needed
+            user.setPassword(userUpdateRequest.password()); //TODO: Add password encoder
             isUpdated = true;
         }
 
         if (isUpdated) {
             userRepository.save(user);
             log.info("Updated user with ID: {}", userId);
-
-            return convertToUserDTO(user);
         } else {
             log.info("No changes detected for user with ID: {}", userId);
-
             throw new IllegalStateException("No changes were detected for the account.");
         }
     }
@@ -121,12 +118,12 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         log.debug("Deleting user with ID: {}", userId);
-        BankUser user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
         // Set the user reference in each account to null and close the accounts
         for (Account account : user.getAccounts()) {
-            account.setBankUser(null);// Disassociate the account from the user
+            account.setUser(null);// Disassociate the account from the user
             account.setStatus(AccountStatus.CLOSED);
             accountRepository.save(account);
         }

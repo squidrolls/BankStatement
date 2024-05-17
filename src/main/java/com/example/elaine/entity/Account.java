@@ -3,10 +3,7 @@ package com.example.elaine.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,12 +11,11 @@ import java.util.List;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "Account")
 @Table(name = "account", uniqueConstraints = {@UniqueConstraint(name = "account_number_unique", columnNames = "account_number")})
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
 public class Account {
 
     @Id
@@ -43,7 +39,7 @@ public class Account {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = true)
-    private BankUser bankUser;
+    private User user;
 
     //bidirectional relationship
     //if a transaction is removed, it will not affect the Account
@@ -60,10 +56,10 @@ public class Account {
 //    @Version
 //    private Long version;  // This field is used for optimistic locking
 
-    public Account(String accountNumber, BigDecimal balance, BankUser bankUser) {
+    public Account(String accountNumber, BigDecimal balance, User user) {
         this.accountNumber = accountNumber;
         this.balance = balance;
-        this.bankUser = bankUser;
+        this.user = user;
         this.status = AccountStatus.ACTIVE;
     }
 

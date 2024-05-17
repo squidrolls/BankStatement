@@ -1,4 +1,4 @@
-package com.example.elaine.dto;
+package com.example.elaine.payload;
 
 import com.example.elaine.entity.TransactionType;
 import com.fasterxml.jackson.annotation.JsonInclude;
