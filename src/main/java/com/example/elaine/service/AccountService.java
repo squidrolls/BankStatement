@@ -8,7 +8,6 @@ import com.example.elaine.payload.AccountRegistrationRequest;
 import com.example.elaine.payload.TransactionDTO;
 import com.example.elaine.entity.*;
 import com.example.elaine.exception.NotFoundException;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,36 +41,29 @@ public class AccountService {
             throw new ValidationException("Initial balance must be non-negative.");
         }
 
-        Account account = null;
-        final int maxAttempts = 5;
-        int attempt = 0;
-        boolean isAccountCreated = false;
+        String accountNumber;
+        boolean exists;
 
-        while (!isAccountCreated && attempt < maxAttempts) {
-            try {
-                String accountNumber = generateAccountNumber();
-                account = new Account(accountNumber, accountRegistrationRequest.getBalance(), user);
-                accountRepository.save(account);
-                isAccountCreated = true;
-            } catch (ConstraintViolationException e) {
-                attempt++;
-                // todo: Log the exception and retry
-            }
-        }
+        //generate accountNumber
+        do {
+            accountNumber = generateAccountNumber();
+            exists = accountRepository.existsByAccountNumber(accountNumber);
+        } while (exists);
 
-        if (!isAccountCreated) {
-            throw new IllegalStateException("Failed to generate a unique account number after " + maxAttempts + " attempts.");
-        }
+        Account account = new Account(accountNumber, accountRegistrationRequest.getBalance(), user);
+        accountRepository.save(account);
 
         if (accountRegistrationRequest.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             Transaction transaction = new Transaction(LocalDateTime.now(), "Initial deposit", accountRegistrationRequest.getBalance(), TransactionType.DEPOSIT, account);
             transactionRepository.save(transaction);
         }
+
         return convertToDTO(account);
     }
 
+
     //no need to add synchronized
-    public String generateAccountNumber() {
+    private String generateAccountNumber() {
         // Format the current date
         String datePart = DATE_FORMAT.format(new Date());
 
@@ -118,7 +110,7 @@ public class AccountService {
         return new AccountDTO(account.getId(), account.getAccountNumber(), account.getBalance(), account.getStatus(), transactionDTOS);
     }
 
-    private TransactionDTO mapTransaction(Transaction transaction) {
+    public TransactionDTO mapTransaction(Transaction transaction) {
         return new TransactionDTO(transaction.getId(), transaction.getDate(), transaction.getDescription(), transaction.getAmount(), transaction.getType());
     }
 }

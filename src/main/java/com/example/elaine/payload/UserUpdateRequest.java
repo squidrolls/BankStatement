@@ -1,7 +1,5 @@
 package com.example.elaine.payload;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 
 public record UserUpdateRequest(
         String firstName,

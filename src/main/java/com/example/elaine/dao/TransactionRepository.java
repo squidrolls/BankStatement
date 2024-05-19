@@ -10,5 +10,4 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
     Optional<Transaction> findByIdAndAccount_AccountNumber(Long id, String accountNumber);
-
 }

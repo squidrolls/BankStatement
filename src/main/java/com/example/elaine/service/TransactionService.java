@@ -58,6 +58,7 @@ public class TransactionService {
         }, pageable).map(this::convertToTransactionDTO);
     }
 
+
     private TransactionDTO convertToTransactionDTO(Transaction transaction) {
         return new TransactionDTO(transaction.getId(), transaction.getDate(), transaction.getDescription(), transaction.getAmount(), transaction.getType()
         );
