@@ -142,8 +142,8 @@ class AccountServiceTest {
 
         assertThat(capturedAccount.getAccountNumber()).isNotNull();
 
-        // Verify that generateAccountNumber() was called at least twice
-        verify(accountRepository, times(2)).existsByAccountNumber(any());
+        // Verify that generateAccountNumber() was called at least three times
+        verify(accountRepository, times(3)).existsByAccountNumber(any());
     }
 
     //2.get all accounts

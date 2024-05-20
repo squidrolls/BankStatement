@@ -26,6 +26,13 @@ public class AccountController {
         return ResponseEntity.ok(accounts);
     }
 
+    // Get account by account number
+    @GetMapping("/{accountNumber}")
+    public ResponseEntity<AccountDTO> getAccountByAccountNumber(@PathVariable Long userId, @PathVariable String accountNumber) {
+        AccountDTO accountDTO = accountService.getAccountByAccountNumber(accountNumber);
+        return ResponseEntity.ok(accountDTO);
+    }
+
     //create account for user
     @PostMapping
     public ResponseEntity<AccountDTO> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountRegistrationRequest request) {

@@ -25,6 +25,7 @@ public class TransactionController {
 
     //1. List Transactions for an Account - pagination
     // filtering by date range, type of transaction (deposit, withdrawal)
+
     @GetMapping
     public ResponseEntity<Page<TransactionDTO>> listTransactions(
             @PathVariable String accountNumber,
@@ -54,8 +55,9 @@ public class TransactionController {
     //3. Create a Transaction - change the balance
     @PostMapping
     public ResponseEntity<TransactionDTO> createTransaction(@PathVariable String accountNumber,@Valid @RequestBody TransactionDTO transactionDTO) {
-        log.debug("Request to create a new transaction for accountNumber: {}", accountNumber);
+        log.info("Request to create a new transaction for accountNumber: {}", accountNumber);
         TransactionDTO createdTransaction = transactionService.createTransaction(accountNumber, transactionDTO);
         return new ResponseEntity<>(createdTransaction, HttpStatus.CREATED);
     }
 }
+

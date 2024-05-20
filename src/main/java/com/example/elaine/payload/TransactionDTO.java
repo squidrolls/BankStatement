@@ -19,7 +19,7 @@ public class TransactionDTO {
     private BigDecimal amount;
     private TransactionType type;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)  // Only include balance if it is not null
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private BigDecimal balance;
 
     public TransactionDTO(Long id, LocalDateTime date, String description, BigDecimal amount, TransactionType type) {
@@ -30,3 +30,4 @@ public class TransactionDTO {
         this.type = type;
     }
 }
+

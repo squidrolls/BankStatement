@@ -48,6 +48,13 @@ public class UserService {
         return new AccountDTO(account.getId(), account.getAccountNumber(), account.getBalance(), account.getStatus());
     }
 
+    // Get user by ID
+    public UserDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
+        return convertToUserDTO(user);
+    }
+
     //2.create new user
     public UserDTO createUser(UserRegistrationRequest request) {
         log.debug("Attempting to create a new user with email: {}", request.email());

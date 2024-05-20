@@ -58,17 +58,17 @@ public class User {
         this.address = address;
     }
 
-    public void addAccounts(Account account){
-        if(!accounts.contains(account)){
-            accounts.add(account);
-            account.setUser(this);
-        }
-    }
-
-    public void removeAccounts(Account account){
-        if(accounts.contains(account)){
-            accounts.remove(account);
-            account.setUser(null);
-        }
-    }
+//    public void addAccounts(Account account){
+//        if(!accounts.contains(account)){
+//            accounts.add(account);
+//            account.setUser(this);
+//        }
+//    }
+//
+//    public void removeAccounts(Account account){
+//        if(accounts.contains(account)){
+//            accounts.remove(account);
+//            account.setUser(null);
+//        }
+//    }
 }

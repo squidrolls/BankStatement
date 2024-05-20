@@ -66,14 +66,27 @@ public class AccountService {
     private String generateAccountNumber() {
         // Format the current date
         String datePart = DATE_FORMAT.format(new Date());
+        String accountNumber;
+        boolean exists;
+        final int maxAttempts = 10; // Define a maximum number of attempts to prevent infinite loop
+        int attempt = 0;
 
-        // Generate two four-digit random numbers
-        int randomPart1 = 1000 + random.nextInt(9000); // ensures the number is always four digits
-        int randomPart2 = 1000 + random.nextInt(9000); // ensures the number is always four digits
+        // Generate accountNumber
+        do {
+            int randomPart1 = 1000 + random.nextInt(9000); // ensures the number is always four digits
+            int randomPart2 = 1000 + random.nextInt(9000); // ensures the number is always four digits
+            accountNumber = String.format("%s-%04d-%04d", datePart, randomPart1, randomPart2);
+            exists = accountRepository.existsByAccountNumber(accountNumber);
+            attempt++;
+        } while (exists && attempt < maxAttempts);
 
-        // Construct the account number
-        return String.format("%s-%04d-%04d", datePart, randomPart1, randomPart2);
+        if (exists) {
+            throw new IllegalStateException("Failed to generate a unique account number after " + maxAttempts + " attempts.");
+        }
+
+        return accountNumber;
     }
+
 
     //2. get all accounts
     public List<AccountDTO> findAllAccountsForUser(Long userId) {
@@ -83,7 +96,14 @@ public class AccountService {
                 .collect(Collectors.toList());
     }
 
-    //3.delete the account - soft delete
+    //3. get account by account number
+    public AccountDTO getAccountByAccountNumber(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException("Account Number " + accountNumber + " not found"));
+        return convertToDTO(account);
+    }
+
+    //4.delete the account - soft delete
     @Transactional
     public void closeAccount(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)

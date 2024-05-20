@@ -63,17 +63,17 @@ public class Account {
         this.status = AccountStatus.ACTIVE;
     }
 
-    public void addTransaction(Transaction transaction){
-        if(!transactions.contains(transaction)){
-            transactions.add(transaction);
-            transaction.setAccount(this);
-        }
-    }
-
-    public void removeTransaction(Transaction transaction){
-        if(transactions.contains(transaction)){
-            transactions.remove(transaction);
-            transaction.setAccount(null);
-        }
-    }
+//    public void addTransaction(Transaction transaction){
+//        if(!transactions.contains(transaction)){
+//            transactions.add(transaction);
+//            transaction.setAccount(this);
+//        }
+//    }
+//
+//    public void removeTransaction(Transaction transaction){
+//        if(transactions.contains(transaction)){
+//            transactions.remove(transaction);
+//            transaction.setAccount(null);
+//        }
+//    }
 }

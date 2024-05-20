@@ -9,6 +9,7 @@ import com.example.elaine.entity.TransactionType;
 import com.example.elaine.exception.NotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -58,14 +60,22 @@ public class TransactionService {
         }, pageable).map(this::convertToTransactionDTO);
     }
 
-
     private TransactionDTO convertToTransactionDTO(Transaction transaction) {
-        return new TransactionDTO(transaction.getId(), transaction.getDate(), transaction.getDescription(), transaction.getAmount(), transaction.getType()
+        return new TransactionDTO(
+                transaction.getId(),
+                transaction.getDate(),
+                transaction.getDescription(),
+                transaction.getAmount(),
+                transaction.getType(),
+                null // Add balance if needed
         );
     }
 
+
     @Transactional
     public TransactionDTO createTransaction(String accountNumber, TransactionDTO transactionDTO) {
+        log.info("Creating transaction for account number: {}, with description: {}", accountNumber, transactionDTO.getDescription());
+
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
@@ -76,16 +86,18 @@ public class TransactionService {
         transaction = transactionRepository.save(transaction);
         accountRepository.save(account);
 
+        log.info("Created transaction with ID: {}, description: {}", transaction.getId(), transaction.getDescription());
+
         return new TransactionDTO(transaction.getId(), transaction.getDate(), transaction.getDescription(), transaction.getAmount(), transaction.getType(), account.getBalance());
     }
 
     private void updateAccountBalance(Account account, Transaction transaction) {
         BigDecimal currentBalance = account.getBalance();
-        if(transaction.getType() == TransactionType.DEPOSIT){
+        if (transaction.getType() == TransactionType.DEPOSIT) {
             account.setBalance(currentBalance.add(transaction.getAmount()));
-        }else{
+        } else {
             account.setBalance(currentBalance.subtract(transaction.getAmount()));
-            if(account.getBalance().compareTo(BigDecimal.ZERO) < 0){
+            if (account.getBalance().compareTo(BigDecimal.ZERO) < 0) {
                 throw new IllegalStateException("Insufficient funds for the withdrawal.");
             }
         }
