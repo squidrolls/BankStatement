@@ -13,6 +13,18 @@ services:
     networks:
       - db-bank-network
     restart: unless-stopped
+  bankstatement-api:
+    container_name: bankstatement-api
+    image: elaineyang01/bankstatement-api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/bank
+    ports:
+      - "8080:8080"
+    networks:
+      - db-bank-network
+    depends_on:
+      - db
+    restart: unless-stopped
 
 networks:
   db-bank-network:

@@ -1,5 +1,11 @@
+### Run the project
+`docker compose up -d`
+
+`docker compose down`
+
 ### API Endpoints
 
+http://localhost:8080/api/v1/users
 
 | Endpoint                    | Description                                |
 |-----------------------------|--------------------------------------------|
